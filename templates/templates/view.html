@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ host }} — Log Viewer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: monospace; background: #0d0d0d; color: #e0e0e0; padding: 32px; }
+  .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+  h1 { color: #00ff88; font-size: 18px; }
+  .back { color: #555; text-decoration: none; font-size: 13px; }
+  .back:hover { color: #888; }
+  .toolbar { display: flex; gap: 10px; margin-left: auto; flex-wrap: wrap; }
+  .btn { padding: 6px 14px; border-radius: 4px; font-size: 12px; font-family: monospace;
+         cursor: pointer; border: none; }
+  .btn-clear { background: #2a1a1a; color: #ff4444; border: 1px solid #ff444433; }
+  .btn-clear:hover { background: #3d1f1f; }
+  .btn-dl { background: #1a3a2a; color: #00ff88; border: 1px solid #00ff8833;
+            text-decoration: none; display: inline-block; }
+  .btn-dl:hover { background: #234d38; }
+  #search { background: #111; border: 1px solid #333; color: #e0e0e0;
+            padding: 6px 12px; border-radius: 4px; font-family: monospace;
+            font-size: 12px; width: 200px; }
+  #search:focus { outline: none; border-color: #00ff8855; }
+  .log-box { background: #111; border: 1px solid #1e1e1e; border-radius: 6px;
+             padding: 20px; white-space: pre-wrap; word-break: break-all;
+             font-size: 13px; line-height: 1.7; max-height: 75vh;
+             overflow-y: auto; color: #ccc; }
+  .stats { color: #444; font-size: 12px; margin-bottom: 10px; }
+  mark { background: #ffff0033; color: inherit; border-radius: 2px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a class="back" href="/">&#8592; Dashboard</a>
+    <h1>&#9656; {{ host }}</h1>
+    <div class="toolbar">
+      <input id="search" type="text" placeholder="Search..." oninput="doSearch(this.value)">
+      <a class="btn btn-dl" href="/view/{{ host }}" download="{{ host }}.txt">Download</a>
+      <button class="btn btn-clear" onclick="clearLog()">Clear Log</button>
+    </div>
+  </div>
+  <p class="stats" id="stats">{{ content | length }} characters</p>
+  <div class="log-box" id="log">{{ content }}</div>
+<script>
+const raw = document.getElementById('log').textContent;
+function doSearch(term) {
+  const box = document.getElementById('log');
+  const stats = document.getElementById('stats');
+  if (!term) { box.textContent = raw; stats.textContent = raw.length + ' characters'; return; }
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(escaped, 'gi');
+  const matches = (raw.match(re) || []).length;
+  box.innerHTML = raw.replace(re, m => `<mark>${m}</mark>`);
+  stats.textContent = raw.length + ' characters — ' + matches + ' matches';
+  if (matches > 0) { const first = box.querySelector('mark'); if (first) first.scrollIntoView({ block: 'center' }); }
+}
+function clearLog() {
+  if (!confirm('Clear log for {{ host }}?')) return;
+  fetch('/clear/{{ host }}', { method: 'POST' }).then(() => window.location.href = '/');
+}
+window.onload = () => { const box = document.getElementById('log'); box.scrollTop = box.scrollHeight; };
+</script>
+</body>
+</html>
