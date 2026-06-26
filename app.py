@@ -22,8 +22,9 @@ LOG_DIR  = "logs"
 ALERT_LOG = "logs/alerts.txt"
 SUBS_FILE = "logs/subscriptions.json"
 
-VAPID_PUBLIC_KEY  = "YOUR_VAPID_PUBLIC_KEY"   # from vapidkeys.com
-VAPID_PRIVATE_KEY = "YOUR_VAPID_PRIVATE_KEY"  # from vapidkeys.com
+VAPID_PUBLIC_KEY  = ": "BPUyGdo0liHiXpw0NIfvu7IF3_qHT5RmijDRWuE7EUsfvll34uoCK4D85LxYmujGdu-3zLuUFeSHefMJajr1B2U","   # from vapidkeys.com
+VAPID_PRIVATE_KEY = ": "4p8-z8VOo4C13Ei9K8fnvXNi94s6RhaJ536ha-Ll50Q"
+}"  # from vapidkeys.com
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
