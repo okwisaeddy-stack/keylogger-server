@@ -4,12 +4,12 @@ import json
 import os
 
 app = Flask(__name__)
-app.secret_key = "changethis_to_something_random"  # change this!
+app.secret_key = "loveyou"  
 
 # ==========================================
 #  CONFIG
 # ==========================================
-DASHBOARD_PASSWORD = "yourpassword"  # change this!
+DASHBOARD_PASSWORD = "handkerchief"  
 
 ALERT_KEYWORDS = [
     "tiktok", "porn", "sex", "nude", "snapchat",
