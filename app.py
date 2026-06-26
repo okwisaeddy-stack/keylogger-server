@@ -46,20 +46,8 @@ def save_subscription(sub):
         json.dump(subs, f)
 
 def send_push(message):
-    try:
-        from pywebpush import webpush, WebPushException
-        for sub in get_subscriptions():
-            try:
-                webpush(
-                    subscription_info=sub,
-                    data=message,
-                    vapid_private_key=VAPID_PRIVATE_KEY,
-                    vapid_claims={"sub": "mailto:admin@example.com"}
-                )
-            except WebPushException as e:
-                print(f"Push failed: {e}")
-    except Exception as e:
-        print(f"Push error: {e}")
+    # Push notifications disabled for now
+    pass
 
 def check_keywords(host, window, data):
     data_lower = data.lower()
