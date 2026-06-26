@@ -1,30 +1,28 @@
-from flask import Flask, request, jsonify, render_template, redirect, session, url_for
+from flask import Flask, request, jsonify, render_template, redirect, session, url_for, send_from_directory
 from datetime import datetime
 import json
 import os
 
 app = Flask(__name__)
-app.secret_key = "loveyou"  
+app.secret_key = "loveyou"  # CHANGE THIS
 
 # ==========================================
 #  CONFIG
 # ==========================================
-DASHBOARD_PASSWORD = "handkerchief"  
+DASHBOARD_PASSWORD = "handkerchief"  # CHANGE THIS
 
 ALERT_KEYWORDS = [
     "tiktok", "porn", "sex", "nude", "snapchat",
     "instagram", "facebook", "discord", "explicit",
     "onlyfans", "dating", "tinder", "vpn"
-    # add more words here
 ]
 
-LOG_DIR  = "logs"
+LOG_DIR   = "logs"
 ALERT_LOG = "logs/alerts.txt"
 SUBS_FILE = "logs/subscriptions.json"
 
-VAPID_PUBLIC_KEY  = ": "BPUyGdo0liHiXpw0NIfvu7IF3_qHT5RmijDRWuE7EUsfvll34uoCK4D85LxYmujGdu-3zLuUFeSHefMJajr1B2U","   # from vapidkeys.com
-VAPID_PRIVATE_KEY = ": "4p8-z8VOo4C13Ei9K8fnvXNi94s6RhaJ536ha-Ll50Q"
-}"  # from vapidkeys.com
+VAPID_PUBLIC_KEY  = "BPUyGdo0liHiXpw0NIfvu7IF3_qHT5RmijDRWuE7EUsfvll34uoCK4D85LxYmujGdu-3zLuUFeSHefMJajr1B2U"
+VAPID_PRIVATE_KEY = "4p8-z8VOo4C13Ei9K8fnvXNi94s6RhaJ536ha-Ll50Q"  # CHANGE THIS
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -199,8 +197,6 @@ def receive_log():
 # ==========================================
 #  SERVICE WORKER
 # ==========================================
-from flask import send_from_directory
-
 @app.route('/sw.js')
 def sw():
     return send_from_directory('static', 'sw.js',
